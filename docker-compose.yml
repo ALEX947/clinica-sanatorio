@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: clinica_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: clinica_db
+      POSTGRES_USER: clinica_user
+      POSTGRES_PASSWORD: clinica_pass
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./clinica-backend
+      dockerfile: Dockerfile
+    container_name: clinica_backend
+    restart: unless-stopped
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: clinica_db
+      DB_USER: clinica_user
+      DB_PASS: clinica_pass
+      JWT_SECRET: super_secret_clinica_key_change_in_prod
+      PORT: 3000
+    ports:
+      - '3000:3000'
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ./clinica-frontend
+      dockerfile: Dockerfile
+    container_name: clinica_frontend
+    restart: unless-stopped
+    ports:
+      - '5173:80'
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

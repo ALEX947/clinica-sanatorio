@@ -1,0 +1,17 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "../..",
+  "testMatch": ["<rootDir>/test/integration/**/*.spec.ts"],
+  "transform": {
+    "^.+\\.(t|j)s$": ["ts-jest", {
+      "tsconfig": {
+        "types": ["jest", "node"],
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "resolvePackageJsonExports": false
+      }
+    }]
+  },
+  "testEnvironment": "node",
+  "testTimeout": 30000
+}
