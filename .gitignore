@@ -1,0 +1,21 @@
+# Environment secrets (never commit these)
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea
+.playwright-mcp
+.playwright
+
+# Docker overrides locales
+docker-compose.override.yml
+
+# Claude Code local config
+.claude/

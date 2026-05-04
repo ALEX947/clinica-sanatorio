@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { NomencladorInos } from '../entities/nomenclador-inos.entity';
 import { ArancelObraSocial } from '../entities/arancel-obra-social.entity';
+import { ActualizarArancelDto, ActualizarNomencladorDto } from '../dto/nomenclador.dto';
 
 @Injectable()
 export class NomencladorService {
@@ -13,10 +14,11 @@ export class NomencladorService {
     private arancelRepo: Repository<ArancelObraSocial>,
   ) {}
 
-  findAll(search?: string) {
-    const qb = this.repo.createQueryBuilder('n').where('n.activo = true');
+  findAll(search?: string, incluirInactivos = false) {
+    const qb = this.repo.createQueryBuilder('n');
+    if (!incluirInactivos) qb.andWhere('n.activo = true');
     if (search)
-      qb.andWhere('n.descripcion ILIKE :s OR n.codigo ILIKE :s', {
+      qb.andWhere('(n.descripcion ILIKE :s OR n.codigo ILIKE :s)', {
         s: `%${search}%`,
       });
     return qb.orderBy('n.codigo').getMany();
@@ -30,6 +32,24 @@ export class NomencladorService {
 
   create(dto: Partial<NomencladorInos>) {
     return this.repo.save(this.repo.create(dto));
+  }
+
+  async update(id: number, dto: ActualizarNomencladorDto) {
+    const n = await this.findOne(id);
+    return this.repo.save({ ...n, ...dto });
+  }
+
+  async listAranceles(practicaId: number) {
+    return this.arancelRepo.find({
+      where: { practica: { id: practicaId } },
+      order: { vigenciaDesde: 'DESC' },
+    });
+  }
+
+  async findArancel(id: number) {
+    const a = await this.arancelRepo.findOne({ where: { id } });
+    if (!a) throw new NotFoundException(`Arancel ${id} no encontrado`);
+    return a;
   }
 
   async getArancelParaOS(
@@ -48,7 +68,26 @@ export class NomencladorService {
       .getOne();
   }
 
-  async setArancel(dto: Partial<ArancelObraSocial>) {
-    return this.arancelRepo.save(this.arancelRepo.create(dto));
+  async setArancel(dto: any) {
+    return this.arancelRepo.save(
+      this.arancelRepo.create({
+        practica: { id: dto.practicaId },
+        obraSocial: { id: dto.obraSocialId },
+        valorArancel: dto.valorArancel,
+        porcentajeCopago: dto.porcentajeCopago ?? 0,
+        vigenciaDesde: dto.vigenciaDesde,
+        vigenciaHasta: dto.vigenciaHasta,
+      }),
+    );
+  }
+
+  async updateArancel(id: number, dto: ActualizarArancelDto) {
+    const a = await this.findArancel(id);
+    return this.arancelRepo.save({ ...a, ...dto });
+  }
+
+  async deleteArancel(id: number) {
+    await this.findArancel(id);
+    return this.arancelRepo.delete(id);
   }
 }

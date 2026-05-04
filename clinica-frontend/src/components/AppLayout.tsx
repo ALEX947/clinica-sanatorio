@@ -6,6 +6,14 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import NotFoundPage from '../pages/NotFoundPage';
+
+function isRoutePermitted(pathname: string, permitidos: string[]): boolean {
+  return permitidos.some(key => {
+    if (!key.startsWith('/')) return false;
+    return pathname === key || pathname.startsWith(key + '/');
+  });
+}
 
 const { Header, Sider, Content } = Layout;
 
@@ -84,7 +92,7 @@ export default function AppLayout() {
   const { usuario, logout } = useAuth();
 
   const rol = usuario?.rol ?? '';
-  const permitidos = ROL_KEYS[rol] ?? ROL_KEYS['admin'];
+  const permitidos = ROL_KEYS[rol] ?? [];
   const menuItems = filtrarMenu(allMenuItems, permitidos);
 
   const userMenu = {
@@ -100,21 +108,25 @@ export default function AppLayout() {
 
   return (
     <Layout style={{ height: '100vh', overflow: 'hidden' }}>
-      <Sider width={220} theme="dark" collapsible style={{ height: '100vh', overflow: 'auto' }}>
-        <div style={{ padding: '16px', textAlign: 'center', color: '#fff', borderBottom: '1px solid #1f3a5f' }}>
-          <Typography.Text strong style={{ color: '#fff', fontSize: 14 }}>
-            Clínica/Sanatorio
-          </Typography.Text>
+      <Sider width={220} theme="dark" collapsible style={{ height: '100vh', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <div style={{ padding: '16px', textAlign: 'center', color: '#fff', borderBottom: '1px solid #1f3a5f', flexShrink: 0 }}>
+            <Typography.Text strong style={{ color: '#fff', fontSize: 14 }}>
+              Clínica/Sanatorio
+            </Typography.Text>
+          </div>
+          <div className="sidebar-scroll" style={{ flex: 1, overflowX: 'hidden' }}>
+            <Menu
+              theme="dark"
+              mode="inline"
+              selectedKeys={[location.pathname]}
+              defaultOpenKeys={['maestros']}
+              items={menuItems}
+              onClick={({ key }) => navigate(key)}
+              style={{ marginTop: 8 }}
+            />
+          </div>
         </div>
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={[location.pathname]}
-          defaultOpenKeys={['maestros']}
-          items={menuItems}
-          onClick={({ key }) => navigate(key)}
-          style={{ marginTop: 8 }}
-        />
       </Sider>
       <Layout style={{ height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <Header style={{ flexShrink: 0, background: '#fff', padding: '0 16px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', borderBottom: '1px solid #f0f0f0' }}>
@@ -127,7 +139,7 @@ export default function AppLayout() {
           </Dropdown>
         </Header>
         <Content style={{ flex: 1, overflow: 'auto', margin: 16 }}>
-          <Outlet />
+          {isRoutePermitted(location.pathname, permitidos) ? <Outlet /> : <NotFoundPage />}
         </Content>
       </Layout>
     </Layout>

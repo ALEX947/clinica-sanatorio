@@ -1,0 +1,85 @@
+schema: spec-driven
+
+context: |
+  Tech stack: NestJS 11 (backend) + React 18 + Vite (frontend)
+  Database: PostgreSQL + TypeORM 0.3
+  Auth: JWT + Passport (roles guard)
+  UI: Ant Design 5 + React Router v6 + Axios
+  Validation: class-validator + class-transformer
+  Docs: Swagger (@nestjs/swagger)
+  Testing: Jest (unit + integration + e2e) — backend only
+  Style: ESLint + Prettier (backend), ESLint (frontend), TypeScript strict
+
+strict_tdd: true
+
+testing:
+  strict_tdd: true
+  detected: "2026-04-20"
+
+  test_runner:
+    command: "cd clinica-backend && npm test"
+    framework: jest
+
+  layers:
+    unit:
+      available: true
+      command: "cd clinica-backend && npm test"
+      tool: jest
+      pattern: "test/unit/**/*.spec.ts"
+    integration:
+      available: true
+      command: "cd clinica-backend && npm run test:integration"
+      tool: jest + supertest
+      pattern: "test/integration/**/*.spec.ts"
+    e2e:
+      available: true
+      command: "cd clinica-backend && npm run test:e2e"
+      tool: jest + supertest
+      pattern: "test/e2e/**/*.e2e-spec.ts"
+    frontend:
+      available: false
+      note: "No test runner detected in clinica-frontend"
+
+  coverage:
+    available: true
+    command: "cd clinica-backend && npm run test:cov"
+
+  quality_tools:
+    linter:
+      available: true
+      command: "cd clinica-backend && npm run lint"
+      tool: eslint
+    type_checker:
+      available: true
+      command: "cd clinica-backend && npx tsc --noEmit"
+      tool: tsc
+    formatter:
+      available: true
+      command: "cd clinica-backend && npm run format"
+      tool: prettier
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - Identify affected modules (auth, botiquin, enfermeria, facturacion, internaciones, maestros)
+    - Specify if DB migration is required
+  specs:
+    - Use Given/When/Then format for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+    - Include both happy path and error scenarios
+  design:
+    - Include sequence diagrams for flows involving auth or DB
+    - Document TypeORM entity changes with relation impacts
+  tasks:
+    - Group by phase: infrastructure, implementation, testing
+    - Use hierarchical numbering (1.1, 1.2, etc.)
+    - Keep tasks completable in one session
+  apply:
+    - Follow NestJS module structure (controller → service → repository)
+    - Use DTOs with class-validator for all inputs
+    - Strict TDD: write tests BEFORE implementation
+  verify:
+    - Run unit tests and integration tests
+    - Verify all spec scenarios are covered
+  archive:
+    - Warn before merging destructive deltas

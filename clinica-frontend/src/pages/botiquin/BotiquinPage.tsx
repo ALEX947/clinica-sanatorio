@@ -385,7 +385,9 @@ export default function BotiquinPage() {
                       <InputNumber min={1} style={{ width: 90 }} />
                     </Form.Item>
                     {fields.length > 1 && (
-                      <Button size="small" danger onClick={() => remove(name)}>–</Button>
+                      <Form.Item label={name === 0 ? ' ' : undefined} colon={false} style={{ marginBottom: 0 }}>
+                        <Button size="small" danger onClick={() => remove(name)}>–</Button>
+                      </Form.Item>
                     )}
                   </Space>
                 ))}

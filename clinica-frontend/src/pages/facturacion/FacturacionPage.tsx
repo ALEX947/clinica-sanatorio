@@ -198,7 +198,9 @@ export default function FacturacionPage() {
                         <InputNumber min={0} style={{ width: 90 }} />
                       </Form.Item>
                       {fields.length > 1 && (
-                        <Button danger size="small" onClick={() => remove(name)} style={{ marginTop: 22 }}>–</Button>
+                        <Form.Item label=" " colon={false} style={{ marginBottom: 0 }}>
+                          <Button danger size="small" onClick={() => remove(name)}>–</Button>
+                        </Form.Item>
                       )}
                     </Space>
                   </Space>

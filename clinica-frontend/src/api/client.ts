@@ -73,8 +73,24 @@ export const obrasSocialesApi = {
 };
 
 export const nomencladorApi = {
-  search: (q?: string) => api.get('/maestros/nomenclador', { params: { q } }).then((r) => r.data),
+  search: (q?: string, incluirInactivos = false) =>
+    api
+      .get('/maestros/nomenclador', {
+        params: { q, ...(incluirInactivos ? { incluirInactivos: 'true' } : {}) },
+      })
+      .then((r) => r.data),
+  get: (id: number) => api.get(`/maestros/nomenclador/${id}`).then((r) => r.data),
   create: (data: any) => api.post('/maestros/nomenclador', data).then((r) => r.data),
+  update: (id: number, data: any) =>
+    api.patch(`/maestros/nomenclador/${id}`, data).then((r) => r.data),
+  listAranceles: (practicaId: number) =>
+    api.get(`/maestros/nomenclador/${practicaId}/aranceles`).then((r) => r.data),
+  createArancel: (data: any) =>
+    api.post('/maestros/nomenclador/aranceles', data).then((r) => r.data),
+  updateArancel: (id: number, data: any) =>
+    api.patch(`/maestros/nomenclador/aranceles/${id}`, data).then((r) => r.data),
+  deleteArancel: (id: number) =>
+    api.delete(`/maestros/nomenclador/aranceles/${id}`).then((r) => r.data),
 };
 
 export const camasApi = {

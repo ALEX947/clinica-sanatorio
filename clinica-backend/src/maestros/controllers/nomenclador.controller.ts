@@ -1,18 +1,24 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { NomencladorService } from '../services/nomenclador.service';
 import { Roles, RolesGuard } from '../../auth/roles.guard';
 import { RolUsuario } from '../../auth/entities/usuario.entity';
-import { CrearNomencladorDto } from '../dto/nomenclador.dto';
+import {
+  ActualizarArancelDto,
+  ActualizarNomencladorDto,
+  CrearNomencladorDto,
+} from '../dto/nomenclador.dto';
 
 @ApiTags('maestros/nomenclador')
 @ApiBearerAuth()
@@ -23,62 +29,70 @@ export class NomencladorController {
 
   @Get()
   @ApiOperation({ summary: 'Buscar prácticas INOS' })
-  findAll(@Query('q') q?: string) {
-    return this.svc.findAll(q);
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.svc.findOne(+id);
+  findAll(
+    @Query('q') q?: string,
+    @Query('incluirInactivos') incluirInactivos?: string,
+  ) {
+    return this.svc.findAll(q, incluirInactivos === 'true');
   }
 
   @Post()
   @UseGuards(RolesGuard)
   @Roles(RolUsuario.ADMIN)
   @ApiOperation({ summary: 'Cargar práctica INOS' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      required: ['codigo', 'descripcion'],
-      properties: {
-        codigo: { type: 'string', example: '040101' },
-        descripcion: { type: 'string', example: 'Consulta médica ambulatoria' },
-        especialidad: { type: 'string', example: 'Clínica Médica' },
-      },
-    },
-  })
   create(@Body() dto: CrearNomencladorDto) {
     return this.svc.create(dto);
   }
 
+  // Rutas estáticas de aranceles — deben ir ANTES de /:id para evitar conflictos
   @Post('aranceles')
   @UseGuards(RolesGuard)
   @Roles(RolUsuario.ADMIN, RolUsuario.FACTURACION)
   @ApiOperation({ summary: 'Definir arancel de práctica para una OS' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      required: ['practicaId', 'obraSocialId', 'valorArancel', 'vigenciaDesde'],
-      properties: {
-        practicaId: { type: 'integer', example: 1 },
-        obraSocialId: { type: 'integer', example: 1 },
-        valorArancel: { type: 'number', example: 1500.0 },
-        porcentajeCopago: { type: 'number', example: 10 },
-        vigenciaDesde: {
-          type: 'string',
-          format: 'date',
-          example: '2026-01-01',
-        },
-        vigenciaHasta: {
-          type: 'string',
-          format: 'date',
-          example: '2026-12-31',
-        },
-      },
-    },
-  })
   setArancel(@Body() dto: any) {
     return this.svc.setArancel(dto);
+  }
+
+  @Get('aranceles/:id')
+  @ApiOperation({ summary: 'Obtener arancel por ID' })
+  getArancelById(@Param('id') id: string) {
+    return this.svc.findArancel(+id);
+  }
+
+  @Patch('aranceles/:id')
+  @UseGuards(RolesGuard)
+  @Roles(RolUsuario.ADMIN, RolUsuario.FACTURACION)
+  @ApiOperation({ summary: 'Actualizar arancel' })
+  updateArancel(@Param('id') id: string, @Body() dto: ActualizarArancelDto) {
+    return this.svc.updateArancel(+id, dto);
+  }
+
+  @Delete('aranceles/:id')
+  @UseGuards(RolesGuard)
+  @Roles(RolUsuario.ADMIN, RolUsuario.FACTURACION)
+  @ApiOperation({ summary: 'Eliminar arancel' })
+  deleteArancel(@Param('id') id: string) {
+    return this.svc.deleteArancel(+id);
+  }
+
+  // Rutas con parámetro dinámico — van DESPUÉS de las estáticas
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.svc.findOne(+id);
+  }
+
+  @Patch(':id')
+  @UseGuards(RolesGuard)
+  @Roles(RolUsuario.ADMIN)
+  @ApiOperation({ summary: 'Actualizar práctica INOS' })
+  update(@Param('id') id: string, @Body() dto: ActualizarNomencladorDto) {
+    return this.svc.update(+id, dto);
+  }
+
+  @Get(':id/aranceles')
+  @ApiOperation({ summary: 'Listar aranceles de una práctica' })
+  listAranceles(@Param('id') id: string) {
+    return this.svc.listAranceles(+id);
   }
 
   @Get(':practicaId/arancel/:obraSocialId')

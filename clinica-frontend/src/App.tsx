@@ -22,6 +22,7 @@ import EnfermeriaPage from './pages/enfermeria/EnfermeriaPage';
 import PrescripcionesPage from './pages/prescripciones/PrescripcionesPage';
 import BotiquinPage from './pages/botiquin/BotiquinPage';
 import FacturacionPage from './pages/facturacion/FacturacionPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 dayjs.locale('es');
 
@@ -72,6 +73,7 @@ function AppRoutes() {
         <Route path="maestros/sectores" element={<SectoresPage />} />
         <Route path="maestros/tipos-profesion" element={<TiposProfesionPage />} />
         <Route path="usuarios" element={<UsuariosPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
   );

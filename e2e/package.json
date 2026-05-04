@@ -1,0 +1,12 @@
+{
+  "name": "clinica-e2e",
+  "private": true,
+  "scripts": {
+    "test:e2e": "PLAYWRIGHT_HTML_OPEN=never playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}

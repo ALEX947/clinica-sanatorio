@@ -337,7 +337,9 @@ export default function PrescripcionesPage() {
                       <Input />
                     </Form.Item>
                     {fields.length > 1 && (
-                      <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
+                      <Form.Item label={name === 0 ? ' ' : undefined} colon={false} style={{ marginBottom: 0 }}>
+                        <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
+                      </Form.Item>
                     )}
                   </Space>
                 ))}

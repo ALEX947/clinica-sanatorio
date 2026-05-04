@@ -28,12 +28,16 @@ export class PrescripcionesController {
   constructor(private svc: PrescripcionesService) {}
 
   @Get('internacion/:internacionId')
+  @UseGuards(RolesGuard)
+  @Roles(RolUsuario.ADMIN, RolUsuario.MEDICO, RolUsuario.MESA_ENTRADAS, RolUsuario.ENFERMERIA)
   @ApiOperation({ summary: 'Listar prescripciones de una internación' })
   findByInternacion(@Param('internacionId') id: string) {
     return this.svc.findByInternacion(+id);
   }
 
   @Get(':id')
+  @UseGuards(RolesGuard)
+  @Roles(RolUsuario.ADMIN, RolUsuario.MEDICO, RolUsuario.MESA_ENTRADAS, RolUsuario.ENFERMERIA)
   findOne(@Param('id') id: string) {
     return this.svc.findOne(+id);
   }
